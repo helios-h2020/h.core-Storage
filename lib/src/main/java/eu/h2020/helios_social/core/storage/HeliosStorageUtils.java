@@ -23,7 +23,7 @@ public class HeliosStorageUtils {
     public static final String HELIOS_DATETIME_PATTERN = "YYYYMMddhhmmss";
 
     /**
-     * Prevent direct instantionation of the class
+     * Prevent direct instantiation of the class
      */
     private HeliosStorageUtils() {
         throw new IllegalStateException("Utility class");

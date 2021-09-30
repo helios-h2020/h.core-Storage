@@ -32,13 +32,12 @@ public class FileContentList extends AsyncTask<String, Integer, Long> {
         File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
         if (helios.exists() && helios.isDirectory()) {
             try {
-                File file = new File(helios, strings[0]);
-                listing = file.list();
+                listing = helios.list();
             } catch (SecurityException e) {
                 e.printStackTrace();
             }
         }
-        return Long.valueOf(listing.length);
+        return ((listing != null) ? Long.valueOf(listing.length) : 0L);
     }
 
     /**

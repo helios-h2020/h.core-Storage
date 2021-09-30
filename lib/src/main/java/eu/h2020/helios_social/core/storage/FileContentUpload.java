@@ -1,5 +1,6 @@
 package eu.h2020.helios_social.core.storage;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
@@ -18,6 +19,8 @@ public class FileContentUpload extends AsyncTask<String, Integer, Long> {
     private OperationReadyListener listener;
     /** Data to be uploaded */
     private byte[] data;
+    // TODO
+    private Context appContext = null;
 
     /**
      * Constructor for file upload operation
@@ -29,6 +32,12 @@ public class FileContentUpload extends AsyncTask<String, Integer, Long> {
         this.data = data;
     }
 
+    FileContentUpload(OperationReadyListener listener, byte[] data, Context appContext) {
+        this.listener = listener;
+        this.data = data;
+        this.appContext = appContext;
+    }
+
     /**
      * Create a new file and upload data.
      * @param strings Filename to be assigned to data
@@ -36,25 +45,35 @@ public class FileContentUpload extends AsyncTask<String, Integer, Long> {
      */
     protected Long doInBackground(String... strings) {
         try {
-            File sdcard = Environment.getExternalStorageDirectory();
-            File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+            // TODO
+            File helios;
+            if(appContext == null) {
+                File sdcard = Environment.getExternalStorageDirectory();
+                helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+            } else {
+                helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR);
+            }
             if (helios.isFile()) {
                 boolean deleted = helios.delete();
                 if (!deleted) {
                     Log.e(TAG, "Helios file delete failed");
-                    return Long.valueOf(-1);
+                    return (long) -1;
                 }
             }
             if (!helios.exists()) {
                 boolean created = helios.mkdir();
                 if (!created) {
                     Log.e(TAG, "Helios subdirectory creation failed");
-                    return Long.valueOf(-1);
+                    return (long) -2;
                 }
             }
             File file = new File(helios, strings[0]);
             if (!file.exists()) {
-                file.createNewFile();
+                boolean created = file.createNewFile();
+                if (!created) {
+                   Log.e(TAG, "New file creation failed");
+                   return (long) -4;
+                }
             }
             FileOutputStream out = new FileOutputStream(file);
             out.write(data);
@@ -62,8 +81,9 @@ public class FileContentUpload extends AsyncTask<String, Integer, Long> {
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
+            return (long) -3;
         }
-        return Long.valueOf(data.length);
+        return (long) data.length;
     }
 
     /**

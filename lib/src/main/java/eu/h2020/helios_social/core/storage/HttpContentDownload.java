@@ -70,6 +70,7 @@ public class HttpContentDownload extends AsyncTask<URL, Integer, Long> {
                 urlConnection.disconnect();
             } catch (IOException e) {
                 Log.e(TAG, "IO exception");
+                e.printStackTrace();
             }
         }
         return totalSize;

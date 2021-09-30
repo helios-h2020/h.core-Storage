@@ -1,3 +1,6 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="hor_margin">16dp</dimen>
+    <dimen name="ver_margin">16dp</dimen>
+    <dimen name="ver_margin2">56dp</dimen>
 </resources>

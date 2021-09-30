@@ -1,5 +1,6 @@
 package eu.h2020.helios_social.core.storage;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.webkit.MimeTypeMap;
@@ -24,6 +25,8 @@ public class FileContentDownload extends AsyncTask<String, Integer, Long> {
     private ByteArrayOutputStream outbuf = new ByteArrayOutputStream();
     /** Output data type */
     private String mimeType = null;
+    // TODO
+    private Context appContext = null;
 
     /**
      * Constructor for file download operation
@@ -32,6 +35,11 @@ public class FileContentDownload extends AsyncTask<String, Integer, Long> {
     FileContentDownload(DownloadReadyListener listener) {
         this.listener = listener;
     }
+    // TODO
+    FileContentDownload(DownloadReadyListener listener, Context appContext) {
+        this.listener = listener;
+        this.appContext = appContext;
+    }
 
     /**
      * Do file download operation in background.
@@ -39,11 +47,18 @@ public class FileContentDownload extends AsyncTask<String, Integer, Long> {
      * @return Length of a file to be downloaded
      */
     protected Long doInBackground(String... strings) {
-        File sdcard = Environment.getExternalStorageDirectory();
+
+        File helios;
+        if(appContext == null) {
+            File sdcard = Environment.getExternalStorageDirectory();
+            helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        } else {
+            helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR);
+        }
         MimeTypeMap mimeMapper = MimeTypeMap.getSingleton();
         String fileExt = MimeTypeMap.getFileExtensionFromUrl(strings[0]);
         mimeType = mimeMapper.getMimeTypeFromExtension(fileExt);
-        File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        //
         if (helios.exists() && helios.isDirectory()) {
             File file = new File(helios, strings[0]);
             try (InputStream in = new FileInputStream(file) ){
