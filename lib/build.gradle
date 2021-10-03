@@ -24,7 +24,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'androidx.appcompat:appcompat:1.3.1'
-    implementation 'com.github.thegrizzlylabs:sardine-android:+'
+    implementation 'com.github.thegrizzlylabs:sardine-android:0.8'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test:runner:1.4.0'
