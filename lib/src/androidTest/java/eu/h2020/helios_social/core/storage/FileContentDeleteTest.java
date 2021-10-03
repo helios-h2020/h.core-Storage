@@ -1,5 +1,7 @@
 package eu.h2020.helios_social.core.storage;
 
+import static junit.framework.TestCase.assertFalse;
+
 import android.content.Context;
 import android.os.Environment;
 
@@ -92,8 +94,16 @@ public class FileContentDeleteTest implements OperationReadyListener  {
         } else {
             helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR + "/");
         }
-        File file = new File(helios, filename);
-        return file.exists();
+        String[] listing = helios.list();
+        if (listing == null || listing.length == 0) {
+            return false;
+        }
+        for (String entry: listing) {
+            if (filename.equals(entry)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Before
@@ -113,6 +123,12 @@ public class FileContentDeleteTest implements OperationReadyListener  {
             ;
         found = checkStorageFile("delete42.txt");
         assertTrue(found);
+        deleteReady = false;
+        new FileContentDelete(listener, appContext).execute("delete42.txt");
+        while (!deleteReady)
+            ;
+        found = checkStorageFile("delete42.txt");
+        assertFalse(found);
     }
 
     @Override

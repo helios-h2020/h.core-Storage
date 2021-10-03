@@ -56,7 +56,13 @@ public class FileContentDelete extends AsyncTask<String, Integer, Long> {
         if (helios.exists() && helios.isDirectory()) {
             try {
                 File file = new File(helios, strings[0]);
-                file.delete();
+                if (file.exists()) {
+                    boolean ok = file.delete();
+                    if (!ok) {
+                        Log.d(TAG, "File delete failed " + file.toString());
+                        return Long.valueOf(-1);
+                    }
+                }
             } catch (SecurityException e) {
                 e.printStackTrace();
             }
