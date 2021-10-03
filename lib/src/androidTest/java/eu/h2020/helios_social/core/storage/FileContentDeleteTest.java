@@ -1,7 +1,9 @@
 package eu.h2020.helios_social.core.storage;
 
+import android.content.Context;
 import android.os.Environment;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -39,8 +41,14 @@ public class FileContentDeleteTest implements OperationReadyListener  {
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     private void writeStorageFile(String filename, byte[] buffer) {
-        File sdcard = Environment.getExternalStorageDirectory();
-        File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        Context appContext = ApplicationProvider.getApplicationContext();
+        File helios;
+        if (appContext == null) {
+            File sdcard = Environment.getExternalStorageDirectory();
+            helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        } else {
+            helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR + "/");
+        }
         if (helios.isFile()) {
             boolean deleted = helios.delete();
             if (!deleted) {
@@ -76,8 +84,14 @@ public class FileContentDeleteTest implements OperationReadyListener  {
     }
 
     private boolean checkStorageFile(String filename) {
-        File sdcard = Environment.getExternalStorageDirectory();
-        File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        Context appContext = ApplicationProvider.getApplicationContext();
+        File helios;
+        if (appContext == null) {
+            File sdcard = Environment.getExternalStorageDirectory();
+            helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        } else {
+            helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR + "/");
+        }
         File file = new File(helios, filename);
         return file.exists();
     }
@@ -89,11 +103,12 @@ public class FileContentDeleteTest implements OperationReadyListener  {
 
     @Test
     public void deleteTest() {
+        Context appContext = ApplicationProvider.getApplicationContext();
         boolean found = checkStorageFile("delete42.txt");
         if (!found) {
             fail();
         }
-        new FileContentUpload(listener, data.getBytes()).execute("upload42.txt");
+        new FileContentUpload(listener, data.getBytes(), appContext).execute("upload42.txt");
         while (!deleteReady)
             ;
         found = checkStorageFile("delete42.txt");

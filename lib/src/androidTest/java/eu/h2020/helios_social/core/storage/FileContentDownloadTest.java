@@ -1,7 +1,9 @@
 package eu.h2020.helios_social.core.storage;
 
+import android.content.Context;
 import android.os.Environment;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -39,8 +41,14 @@ public class FileContentDownloadTest implements DownloadReadyListener {
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     private void writeStorageFile(String filename, byte[] buffer) {
-        File sdcard = Environment.getExternalStorageDirectory();
-        File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        Context appContext = ApplicationProvider.getApplicationContext();
+        File helios;
+        if (appContext == null) {
+            File sdcard = Environment.getExternalStorageDirectory();
+            helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        } else {
+            helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR + "/");
+        }
         if (helios.isFile()) {
             boolean deleted = helios.delete();
             if (!deleted) {
@@ -76,8 +84,14 @@ public class FileContentDownloadTest implements DownloadReadyListener {
     }
 
     private void removeStorageFile(String filename) {
-        File sdcard = Environment.getExternalStorageDirectory();
-        File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        Context appContext = ApplicationProvider.getApplicationContext();
+        File helios;
+        if (appContext == null) {
+            File sdcard = Environment.getExternalStorageDirectory();
+            helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        } else {
+            helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR + "/");
+        }
         if (helios.exists() && helios.isDirectory()) {
             File file = new File(helios, filename);
             file.delete();
@@ -91,7 +105,8 @@ public class FileContentDownloadTest implements DownloadReadyListener {
 
     @Test
     public void downloadTest() {
-        new FileContentDownload(listener).execute("download42.txt");
+        Context appContext = ApplicationProvider.getApplicationContext();
+        new FileContentDownload(listener, appContext).execute("download42.txt");
         while (!downloadReady)
             ;
         assertArrayEquals(data.getBytes(), content);

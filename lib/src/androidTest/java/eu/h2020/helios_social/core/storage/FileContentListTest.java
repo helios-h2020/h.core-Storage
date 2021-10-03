@@ -1,7 +1,9 @@
 package eu.h2020.helios_social.core.storage;
 
+import android.content.Context;
 import android.os.Environment;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -39,8 +41,14 @@ public class FileContentListTest implements ListingReadyListener {
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     private void writeStorageFile(String filename, byte[] buffer) {
-        File sdcard = Environment.getExternalStorageDirectory();
-        File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        Context appContext = ApplicationProvider.getApplicationContext();
+        File helios;
+        if (appContext == null) {
+            File sdcard = Environment.getExternalStorageDirectory();
+            helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        } else {
+            helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR + "/");
+        }
         if (helios.isFile()) {
             boolean deleted = helios.delete();
             if (!deleted) {
@@ -76,8 +84,14 @@ public class FileContentListTest implements ListingReadyListener {
     }
 
     private void removeStorageFile(String filename) {
-        File sdcard = Environment.getExternalStorageDirectory();
-        File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        Context appContext = ApplicationProvider.getApplicationContext();
+        File helios;
+        if (appContext == null) {
+            File sdcard = Environment.getExternalStorageDirectory();
+            helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        } else {
+            helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR + "/");
+        }
         if (helios.exists() && helios.isDirectory()) {
             File file = new File(helios, filename);
             file.delete();
@@ -94,7 +108,8 @@ public class FileContentListTest implements ListingReadyListener {
     public void listingTest() {
         boolean found1 = false;
         boolean found2 = false;
-        new FileContentList(listener).execute("");
+        Context appContext = ApplicationProvider.getApplicationContext();
+        new FileContentList(listener, appContext).execute("");
         while (!listingReady)
             ;
         if (listing != null) {

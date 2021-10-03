@@ -1,7 +1,9 @@
 package eu.h2020.helios_social.core.storage;
 
+import android.content.Context;
 import android.os.Environment;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -37,8 +39,14 @@ public class FileContentUploadTest implements OperationReadyListener {
 
     private byte[] readStorageFile(String filename) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        File sdcard = Environment.getExternalStorageDirectory();
-        File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        Context appContext = ApplicationProvider.getApplicationContext();
+        File helios;
+        if (appContext == null) {
+            File sdcard = Environment.getExternalStorageDirectory();
+            helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        } else {
+            helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR + "/");
+        }
         if (helios.exists() && helios.isDirectory()) {
             File file = new File(helios, filename);
             try (InputStream in = new FileInputStream(file)) {
@@ -55,8 +63,14 @@ public class FileContentUploadTest implements OperationReadyListener {
     }
 
     private void removeStorageFile(String filename) {
-        File sdcard = Environment.getExternalStorageDirectory();
-        File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        Context appContext = ApplicationProvider.getApplicationContext();
+        File helios;
+        if (appContext == null) {
+            File sdcard = Environment.getExternalStorageDirectory();
+            helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        } else {
+            helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR + "/");
+        }
         if (helios.exists() && helios.isDirectory()) {
             File file = new File(helios, filename);
             file.delete();
@@ -65,7 +79,8 @@ public class FileContentUploadTest implements OperationReadyListener {
 
     @Test
     public void uploadTest() {
-        new FileContentUpload(listener, data.getBytes()).execute("upload42.txt");
+        Context appContext = ApplicationProvider.getApplicationContext();
+        new FileContentUpload(listener, data.getBytes(), appContext).execute("upload42.txt");
         while (!uploadReady)
             ;
         byte[] content = readStorageFile("upload42.txt");
