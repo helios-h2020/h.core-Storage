@@ -18,6 +18,13 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+	maven {
+            url "https://builder.helios-social.eu/repository/helios-repository/"
+            credentials {
+                username = heliosUser
+                password = heliosPassword
+            }
+        }
         // sardine-android requires this repository
         maven {
             url 'https://jitpack.io'
