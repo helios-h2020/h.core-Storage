@@ -97,7 +97,12 @@ public class HeliosStorageManager implements HeliosStorage {
         }
     }
 
-    // TODO
+    /**
+     * Download an object from HELIOS persistent storage
+     * @param pathname The name of the object to be downloaded
+     * @param listener Class instance to be notified when download is completed
+     * @param appContext Application context
+     */
     public void download(String pathname, DownloadReadyListener listener, Context appContext) {
         switch (accessMethod) {
             case LOCALFS:
@@ -133,6 +138,27 @@ public class HeliosStorageManager implements HeliosStorage {
     }
 
     /**
+     * Upload an object to HELIOS persistent storage
+     * @param pathname The name of the object to be uploaded
+     * @param data Uploaded data as raw bytes
+     * @param listener Class instance to be notified when upload is completed
+     * @param appContext Application context
+     */
+    public void upload(String pathname, byte[] data, OperationReadyListener listener, Context appContext) {
+        switch (accessMethod) {
+            case LOCALFS:
+                new FileContentUpload(listener, data, appContext).execute(pathname);
+                break;
+            case WEBDAV:
+                new DavContentUpload(listener, data, username, password).execute(pathname);
+                break;
+            default:
+                Log.e(TAG, "Unknown access method");
+                break;
+        }
+    }
+
+    /**
      * Upload an object to HELIOS persistent storage as synchronous method
      * @param pathname The name of the object to be uploaded
      * @param data Uploaded data as raw bytes
@@ -141,7 +167,8 @@ public class HeliosStorageManager implements HeliosStorage {
      * @throws ExecutionException Upload operation failed
      * @throws InterruptedException Upload operation interrupted
      */
-    public long uploadSync(String pathname, byte[] data, OperationReadyListener listener) throws ExecutionException, InterruptedException {
+    public long uploadSync(String pathname, byte[] data, OperationReadyListener listener)
+            throws ExecutionException, InterruptedException {
         switch (accessMethod) {
             case LOCALFS:
                 return new FileContentUpload(listener, data).execute(pathname).get();
@@ -158,11 +185,11 @@ public class HeliosStorageManager implements HeliosStorage {
      * @param pathname The name of the object to be uploaded
      * @param data Uploaded data as raw bytes
      * @param listener Class instance to be notified when upload is completed
+     * @param appContext Application context
      * @return Number of bytes uploaded or negative value for an error
      * @throws ExecutionException Upload operation failed
      * @throws InterruptedException Upload operation interrupted
      */
-    // TODO: check for Android Q and later
     public long uploadSync(String pathname, byte[] data, OperationReadyListener listener, Context appContext) throws ExecutionException, InterruptedException {
         switch (accessMethod) {
             case LOCALFS:
@@ -195,6 +222,26 @@ public class HeliosStorageManager implements HeliosStorage {
     }
 
     /**
+     * Remove an object from HELIOS persistent storage
+     * @param pathname The name of the object to be removed
+     * @param listener Class instance to be notified when removal is completed
+     * @param appContext Application context
+     */
+    public void delete(String pathname, OperationReadyListener listener, Context appContext) {
+        switch (accessMethod) {
+            case LOCALFS:
+                new FileContentDelete(listener, appContext).execute(pathname);
+                break;
+            case WEBDAV:
+                new DavContentDelete(listener, username, password).execute(pathname);
+                break;
+            default:
+                Log.e(TAG, "Unknown access method");
+                break;
+        }
+    }
+
+    /**
      * List objects in HELIOS persistent storage
      * @param pathname Pathname to be listed
      * @param listener Class instance to be notified when listing is completed
@@ -203,6 +250,26 @@ public class HeliosStorageManager implements HeliosStorage {
         switch (accessMethod) {
             case LOCALFS:
                 new FileContentList(listener).execute(pathname);
+                break;
+            case WEBDAV:
+                new DavContentList(listener, username, password).execute(pathname);
+                break;
+            default:
+                Log.e(TAG, "Unknown access method");
+                break;
+        }
+    }
+
+    /**
+     * List objects in HELIOS persistent storage
+     * @param pathname Pathname to be listed
+     * @param listener Class instance to be notified when listing is completed
+     * @param appContext Application context
+     */
+    public void list(String pathname, ListingReadyListener listener, Context appContext) {
+        switch (accessMethod) {
+            case LOCALFS:
+                new FileContentList(listener, appContext).execute(pathname);
                 break;
             case WEBDAV:
                 new DavContentList(listener, username, password).execute(pathname);
