@@ -53,8 +53,13 @@ public class MainActivity extends AppCompatActivity
         listView.setAdapter(adapter);
         FloatingActionButton fab = findViewById(R.id.fab);
 
+        Context context = this.getApplicationContext();
+
         String[] PERMISSIONS = {
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                android.Manifest.permission.INTERNET,
+                android.Manifest.permission.ACCESS_NETWORK_STATE,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
         };
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, 1);
@@ -73,7 +78,7 @@ public class MainActivity extends AppCompatActivity
                 try {
                     switch (testseq) {
                         case 0:
-                            storage.upload("koenew.txt", testText.getBytes(), operationListener);
+                            storage.upload("koenew.txt", testText.getBytes(), operationListener, context);
                             str = new String("Upload file " + now);
                             try {
                                 adapter.add(str);
@@ -83,7 +88,7 @@ public class MainActivity extends AppCompatActivity
                             testseq++;
                             break;
                         case 1:
-                            storage.delete("koenew.txt", operationListener);
+                            storage.delete("koenew.txt", operationListener, context);
                             str = new String("Delete file " + now);
                             try {
                                 adapter.add(str);
@@ -93,9 +98,9 @@ public class MainActivity extends AppCompatActivity
                             testseq++;
                             break;
                         case 2:
-                            storage.uploadSync("koenew.txt", testText.getBytes(), null);
-                            storage.uploadSync("koenew2.txt", testText.getBytes(), null);
-                            storage.list("koenew.txt", listingListener);
+                            storage.uploadSync("koenew.txt", testText.getBytes(), null, context);
+                            storage.uploadSync("koenew2.txt", testText.getBytes(), null, context);
+                            storage.list("koenew.txt", listingListener, context);
                             str = new String("List file " + now);
                             try {
                                 adapter.add(str);
@@ -105,7 +110,7 @@ public class MainActivity extends AppCompatActivity
                             testseq++;
                             break;
                         case 3:
-                            storage.download("koenew.txt", downloadListener);
+                            storage.download("koenew.txt", downloadListener, context);
                             str = new String("Download file " + now);
                             try {
                                 adapter.add(str);
