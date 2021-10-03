@@ -1,7 +1,9 @@
 package eu.h2020.helios_social.core.storage;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 
@@ -11,8 +13,12 @@ import java.io.File;
  * the operation has been completed by calling a operationReady() method.
  */
 public class FileContentDelete extends AsyncTask<String, Integer, Long> {
-    /* Listener class that gets notified when the operation is ready */
+    /** Logging tag */
+    private static final String TAG = "FileContentDelete";
+    /** Listener class that gets notified when the operation is ready */
     private OperationReadyListener listener;
+    /** Application context to be used with Android 11 scoped storage */
+    private Context appContext = null;
 
     /**
      * Constructor for file delete operation.
@@ -23,6 +29,16 @@ public class FileContentDelete extends AsyncTask<String, Integer, Long> {
     }
 
     /**
+     * Constructor for file delete operation supporting Android 11 scoped storage
+     * @param listener Listener will be notified when the operation has been completed.
+     * @param appContext Application context
+     */
+    FileContentDelete(OperationReadyListener listener, Context appContext) {
+        this.listener = listener;
+        this.appContext = appContext;
+    }
+
+    /**
      * Delete a file. Currently this always succeeds. However, there can be cases like
      * non-existent file, permission problems, attempt to remove non-empty directory. All
      * these need to be handled and different status should be returned.
@@ -30,8 +46,13 @@ public class FileContentDelete extends AsyncTask<String, Integer, Long> {
      * @return Currently always returns Long value 1L.
      */
     protected Long doInBackground(String... strings) {
-        File sdcard = Environment.getExternalStorageDirectory();
-        File helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        File helios;
+        if (appContext == null) {
+            File sdcard = Environment.getExternalStorageDirectory();
+            helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
+        } else {
+            helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR);
+        }
         if (helios.exists() && helios.isDirectory()) {
             try {
                 File file = new File(helios, strings[0]);
@@ -39,6 +60,8 @@ public class FileContentDelete extends AsyncTask<String, Integer, Long> {
             } catch (SecurityException e) {
                 e.printStackTrace();
             }
+        } else {
+            Log.d(TAG, "Directory " + helios.toString() + " not found");
         }
         return Long.valueOf(1);
     }

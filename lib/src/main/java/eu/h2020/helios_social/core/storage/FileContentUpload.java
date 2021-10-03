@@ -19,7 +19,7 @@ public class FileContentUpload extends AsyncTask<String, Integer, Long> {
     private OperationReadyListener listener;
     /** Data to be uploaded */
     private byte[] data;
-    // TODO
+    /** Application context to be used with Android 11 scoped storage */
     private Context appContext = null;
 
     /**
@@ -32,6 +32,12 @@ public class FileContentUpload extends AsyncTask<String, Integer, Long> {
         this.data = data;
     }
 
+    /**
+     * Constructor for file upload operation
+     * @param listener Listener instance o be called when the operation has been completed
+     * @param data Data to be uploaded
+     * @param appContext Application context
+     */
     FileContentUpload(OperationReadyListener listener, byte[] data, Context appContext) {
         this.listener = listener;
         this.data = data;
@@ -45,13 +51,12 @@ public class FileContentUpload extends AsyncTask<String, Integer, Long> {
      */
     protected Long doInBackground(String... strings) {
         try {
-            // TODO
             File helios;
-            if(appContext == null) {
+            if (appContext == null) {
                 File sdcard = Environment.getExternalStorageDirectory();
                 helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
             } else {
-                helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR);
+                helios = new File(appContext.getFilesDir(), HeliosStorageUtils.HELIOS_DIR + "/");
             }
             if (helios.isFile()) {
                 boolean deleted = helios.delete();
@@ -59,12 +64,17 @@ public class FileContentUpload extends AsyncTask<String, Integer, Long> {
                     Log.e(TAG, "Helios file delete failed");
                     return (long) -1;
                 }
+            } else {
+                Log.d(TAG, "HELIOS is not a file");
             }
             if (!helios.exists()) {
-                boolean created = helios.mkdir();
+                Log.d(TAG, "Create as a directory");
+                boolean created = helios.mkdirs();
                 if (!created) {
-                    Log.e(TAG, "Helios subdirectory creation failed");
-                    return (long) -2;
+                    if (!helios.exists()) {
+                        Log.e(TAG, "Helios subdirectory creation failed");
+                        return (long) -2;
+                    }
                 }
             }
             File file = new File(helios, strings[0]);

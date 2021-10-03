@@ -25,7 +25,7 @@ public class FileContentDownload extends AsyncTask<String, Integer, Long> {
     private ByteArrayOutputStream outbuf = new ByteArrayOutputStream();
     /** Output data type */
     private String mimeType = null;
-    // TODO
+    /** Application context to be used with Android 11 scoped storage */
     private Context appContext = null;
 
     /**
@@ -35,7 +35,12 @@ public class FileContentDownload extends AsyncTask<String, Integer, Long> {
     FileContentDownload(DownloadReadyListener listener) {
         this.listener = listener;
     }
-    // TODO
+
+    /**
+     * Constructor for file download operation
+     * @param listener Listener will be notified when the operation has been completed.
+     * @param appContext Application context
+     */
     FileContentDownload(DownloadReadyListener listener, Context appContext) {
         this.listener = listener;
         this.appContext = appContext;
@@ -49,7 +54,7 @@ public class FileContentDownload extends AsyncTask<String, Integer, Long> {
     protected Long doInBackground(String... strings) {
 
         File helios;
-        if(appContext == null) {
+        if (appContext == null) {
             File sdcard = Environment.getExternalStorageDirectory();
             helios = new File(sdcard, HeliosStorageUtils.HELIOS_DIR);
         } else {
