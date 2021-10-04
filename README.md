@@ -143,10 +143,16 @@ based implementation instead of AsyncTask.
 HELIOS software components are organized into different repositories
 so that these components can be developed separately avoiding many
 conflicts in code integration. However, the modules may also depend
-on each other. However, `Storage` module does not depend on other
+on each other. However, `Storage` module itself does not depend on other
 HELIOS projects.
 
 ### How to configure the dependencies ###
+
+Dependency to  `Storage` module can be configured by adding the
+following line to a list of dependencies in module specific Android
+build.gradle file:
+
+    implementation 'eu.h2020.helios_social.core.storage:storage:1.0.87'
 
 To manage project dependencies developed by the consortium, the
 approach proposed is to use a private Maven repository with Nexus.
@@ -194,7 +200,7 @@ And the variables of Nexus's credentials are stored locally at
 heliosUser=username
 heliosPassword=password
 ```
-To request Nexus username and password, contact Atos.
+To request Nexus username and password, contact Atos (jordi.hernandezv@atos.net>).
 
 ### How to use the dependencies ###
 
